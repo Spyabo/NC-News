@@ -40,3 +40,35 @@ describe("GET: /api/topics", () => {
       });
   });
 });
+
+describe("GET: /api/articles/:article_id", () => {
+  it("should respond with an article object corresponding to the id requested", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        const article = body;
+        expect(article).toBeInstanceOf(Object);
+        expect(Object.keys(article).length).toBe(8);
+        expect(article).toMatchObject({
+          article_id: expect.any(Number),
+          author: expect.any(String),
+          title: expect.any(String),
+          body: expect.any(String),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+
+  it("should respond with a 404 error for requesting an ID that does not exist", () => {
+    return request(app)
+      .get("/api/articles/-1")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.error).toBe("Article not found");
+      });
+  });
+});
