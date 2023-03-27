@@ -22,8 +22,8 @@ describe("GET: /api/topics", () => {
         const topics = body;
         expect(topics).toBeInstanceOf(Array);
         expect(topics.length).toBe(3);
-        topics.forEach((treasure) => {
-          expect(treasure).toMatchObject({
+        topics.forEach((topic) => {
+          expect(topic).toMatchObject({
             description: expect.any(String),
             slug: expect.any(String),
           });
