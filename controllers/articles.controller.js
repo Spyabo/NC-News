@@ -6,8 +6,7 @@ function getArticles(req, resp, next) {
       resp.status(200).send(article);
     })
     .catch((err) => {
-      //   console.log("err:", err);
-      if (err.status === 404) {
+      if (err.status) {
         resp.status(404).send({ error: err.msg });
       } else {
         next(err);

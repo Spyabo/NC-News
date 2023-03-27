@@ -65,10 +65,10 @@ describe("GET: /api/articles/:article_id", () => {
 
   it("should respond with a 404 error for requesting an ID that is not possible", () => {
     return request(app)
-      .get("/api/articles/-1")
-      .expect(404)
+      .get("/api/articles/banana")
+      .expect(400)
       .then(({ body }) => {
-        expect(body.error).toBe("Article not found");
+        expect(body.msg).toBe("Invalid ID");
       });
   });
 
