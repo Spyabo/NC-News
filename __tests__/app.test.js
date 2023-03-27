@@ -19,7 +19,7 @@ describe("GET: /api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then(({ body }) => {
-        const topics = body;
+        const { topics } = body;
         expect(topics).toBeInstanceOf(Array);
         expect(topics.length).toBe(3);
         topics.forEach((topic) => {
@@ -28,6 +28,15 @@ describe("GET: /api/topics", () => {
             slug: expect.any(String),
           });
         });
+      });
+  });
+
+  it("should respond with a 404 error for an incorrect url", () => {
+    return request(app)
+      .get("/api/katherine")
+      .expect(404)
+      .then(({ res }) => {
+        expect(res.statusMessage).toBe("Not Found");
       });
   });
 });
