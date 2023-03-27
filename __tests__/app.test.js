@@ -51,7 +51,7 @@ describe("GET: /api/articles/:article_id", () => {
         expect(article).toBeInstanceOf(Object);
         expect(Object.keys(article).length).toBe(8);
         expect(article).toMatchObject({
-          article_id: expect.any(Number),
+          article_id: 1,
           author: expect.any(String),
           title: expect.any(String),
           body: expect.any(String),
@@ -63,9 +63,18 @@ describe("GET: /api/articles/:article_id", () => {
       });
   });
 
-  it("should respond with a 404 error for requesting an ID that does not exist", () => {
+  it("should respond with a 404 error for requesting an ID that is not possible", () => {
     return request(app)
       .get("/api/articles/-1")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.error).toBe("Article not found");
+      });
+  });
+
+  it("should respond with a 404 error for requesting an ID that does not exist", () => {
+    return request(app)
+      .get("/api/articles/1000")
       .expect(404)
       .then(({ body }) => {
         expect(body.error).toBe("Article not found");
