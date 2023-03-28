@@ -177,12 +177,23 @@ describe("GET: /api/articles/:article_id/comments", () => {
       });
   });
 
-  it("404: respond with an error for requesting an ID that is not possible", () => {
+  it("400: respond with an error for requesting an ID that is not possible", () => {
     return request(app)
       .get("/api/articles/banana/comments")
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid ID");
+      });
+  });
+
+  it("200: respond with an empty array for an article that has no comments", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments.length).toBe(0);
       });
   });
 });
