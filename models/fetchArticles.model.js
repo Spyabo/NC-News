@@ -1,3 +1,4 @@
+const { ClientBase } = require("pg");
 const db = require("../db/connection.js");
 
 exports.fetchArticleFromID = (article_id) => {
@@ -33,3 +34,29 @@ exports.fetchArticles = () => {
       return data.rows;
     });
 };
+
+exports.fetchArticleComments = (article_id) => {
+  return db
+    .query(
+      `SELECT * FROM comments WHERE comments.article_id = $1 ORDER BY created_at DESC`,
+      [article_id]
+    )
+    .then((data) => {
+      return data.rows;
+    });
+};
+
+async function checkArticleExists(article_id) {
+  return db
+    .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+    .then((data) => {
+      if (data.rowCount === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "Article not found",
+        });
+      }
+      return 0; //Thought returning a falsy value would be better
+    });
+}
+module.exports.checkArticleExists = checkArticleExists;
