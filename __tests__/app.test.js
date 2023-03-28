@@ -126,3 +126,63 @@ describe("GET: /api/articles", () => {
       });
   });
 });
+
+describe("GET: /api/articles/:article_id/comments", () => {
+  it("200: respond with an array of comment objects for a given article", () => {
+    return request(app)
+      .get("/api/articles/9/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments.length).toBe(2);
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            body: expect.any(String),
+            votes: expect.any(Number),
+            author: expect.any(String),
+            article_id: 9,
+            created_at: expect.any(String),
+          });
+        });
+      });
+  });
+
+  it("200: respond with the articles sorted by Date in descending order", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments.length).toBe(11);
+
+        const isSorted = comments.every((item, index, array) => {
+          if (index === 0) return true;
+          return (
+            new Date(item.created_at) <= new Date(array[index - 1].created_at)
+          );
+        });
+        expect(isSorted).toBe(true);
+      });
+  });
+
+  it("404: respond with an error for requesting an ID that does not exist", () => {
+    return request(app)
+      .get("/api/articles/1000/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.error).toBe("Article not found");
+      });
+  });
+
+  it("404: respond with an error for requesting an ID that is not possible", () => {
+    return request(app)
+      .get("/api/articles/banana/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid ID");
+      });
+  });
+});
