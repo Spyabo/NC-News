@@ -5,7 +5,7 @@ exports.fetchArticleFromID = (article_id) => {
   return db
     .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
     .then((data) => {
-      if (data.rows.length === 0) {
+      if (data.rowCount === 0) {
         return Promise.reject({
           status: 404,
           msg: "Article not found",
@@ -25,7 +25,7 @@ exports.fetchArticles = () => {
       ORDER BY articles.created_at DESC`
     )
     .then((data) => {
-      if (data.rows.length === 0) {
+      if (data.rowCount === 0) {
         return Promise.reject({
           status: 404,
           msg: "Articles not found",
