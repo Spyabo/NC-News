@@ -5,6 +5,7 @@ const {
   getArticles,
   getArticleComments,
 } = require("./controllers/articles.controller");
+const { postComment } = require("./controllers/comments.controller");
 const {
   handlePSQL400s,
   handleCustomErrors,
