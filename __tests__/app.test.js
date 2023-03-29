@@ -202,7 +202,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .send(comment)
       .expect(201)
       .then(({ body }) => {
-        expect(body).toMatchObject({
+        expect(body.postedComment).toMatchObject({
           comment_id: expect.any(Number),
           body: "This is a comment",
           votes: expect.any(Number),
@@ -210,6 +210,62 @@ describe("POST /api/articles/:article_id/comments", () => {
           article_id: 1,
           created_at: expect.any(String),
         });
+      });
+  });
+
+  it("201: ignores unnecessary properties in a sent comment", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "lurker",
+        body: "This is a comment",
+        votes: 1,
+        password: "password",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.postedComment).toMatchObject({
+          comment_id: expect.any(Number),
+          body: "This is a comment",
+          votes: expect.any(Number),
+          author: "lurker",
+          article_id: 1,
+          created_at: expect.any(String),
+        });
+      });
+  });
+
+  it("400: respond with an error for posting on an ID that is not possible", () => {
+    return request(app)
+      .post("/api/articles/banana/comments")
+      .send(comment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid ID");
+      });
+  });
+
+  it("400: missing username responds with an error", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        body: "This is a comment",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing required fields: username and body");
+      });
+  });
+
+  it("400: missing body responds with an error", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "lurker",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Missing required fields: username and body");
       });
   });
 
@@ -223,13 +279,16 @@ describe("POST /api/articles/:article_id/comments", () => {
       });
   });
 
-  it("400: respond with an error for posting on an ID that is not possible", () => {
+  it("404: username does not exist", () => {
     return request(app)
-      .post("/api/articles/banana/comments")
-      .send(comment)
-      .expect(400)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "Zu",
+        body: "This is a comment",
+      })
+      .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Invalid ID");
+        expect(body.msg).toBe("User not found");
       });
   });
 });
