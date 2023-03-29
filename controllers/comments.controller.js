@@ -9,7 +9,7 @@ exports.postComment = async (req, resp, next) => {
   };
   insertComment(comment)
     .then(async (data) => {
-      resp.status(201).send(data);
+      resp.status(201).send({ postedComment: data });
     })
     .catch((err) => {
       next(err);
