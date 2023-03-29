@@ -63,7 +63,7 @@ describe("GET: /api/articles/:article_id", () => {
       });
   });
 
-  it("404: respond with an error for requesting an ID that is not possible", () => {
+  it("400: respond with an error for requesting an ID that is not possible", () => {
     return request(app)
       .get("/api/articles/banana")
       .expect(400)
@@ -177,9 +177,56 @@ describe("GET: /api/articles/:article_id/comments", () => {
       });
   });
 
-  it("404: respond with an error for requesting an ID that is not possible", () => {
+  it("400: respond with an error for requesting an ID that is not possible", () => {
     return request(app)
       .get("/api/articles/banana/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid ID");
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  let comment;
+  beforeEach(() => {
+    comment = {
+      username: "lurker",
+      body: "This is a comment",
+    };
+  });
+
+  it("201: respond with the posted comment", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(comment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body).toMatchObject({
+          comment_id: expect.any(Number),
+          body: "This is a comment",
+          votes: expect.any(Number),
+          author: "lurker",
+          article_id: 1,
+          created_at: expect.any(String),
+        });
+      });
+  });
+
+  it("404: respond with an error for posting on an ID that does not exist", () => {
+    return request(app)
+      .post("/api/articles/1000/comments")
+      .send(comment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+
+  it("400: respond with an error for posting on an ID that is not possible", () => {
+    return request(app)
+      .post("/api/articles/banana/comments")
+      .send(comment)
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid ID");
