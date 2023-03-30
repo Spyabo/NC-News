@@ -435,3 +435,50 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  it('204: respond with "No Content"', () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(({ res }) => {
+        expect(res.statusMessage).toBe("No Content");
+      });
+  });
+
+  it("204: delete the comment", () => {
+    return db
+      .query(`SELECT FROM comments WHERE comment_id = 2`)
+      .then(({ rows }) => {
+        expect(rows.length).toBe(1);
+        return request(app)
+          .delete("/api/comments/2")
+          .expect(204)
+          .then(() => {
+            return db
+              .query(`SELECT FROM comments WHERE comment_id = 2`)
+              .then(({ rows }) => {
+                expect(rows.length).toBe(0);
+              });
+          });
+      });
+  });
+
+  it("404: respond with an error for requesting an ID that does not exist", () => {
+    return request(app)
+      .delete("/api/comments/1000")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Comment not found");
+      });
+  });
+
+  it("404: respond with an error for requesting an ID that is not possible", () => {
+    return request(app)
+      .delete("/api/comments/banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid ID");
+      });
+  });
+});
