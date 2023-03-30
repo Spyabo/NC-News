@@ -1,4 +1,4 @@
-const { insertComment } = require("../models/comments.model");
+const { insertComment, removeComment } = require("../models/comments.model");
 
 exports.postComment = async (req, resp, next) => {
   const article_id = parseInt(req.params.article_id);
@@ -12,6 +12,18 @@ exports.postComment = async (req, resp, next) => {
       resp.status(201).send({ postedComment: data });
     })
     .catch((err) => {
+      next(err);
+    });
+};
+
+exports.deleteComment = (req, resp, next) => {
+  const comment_id = parseInt(req.params.comment_id);
+  removeComment(comment_id)
+    .then((data) => {
+      resp.status(204).send();
+    })
+    .catch((err) => {
+      console.log(err);
       next(err);
     });
 };
