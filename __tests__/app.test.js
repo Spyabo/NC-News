@@ -9,6 +9,8 @@ const {
 } = require("../db/data/test-data/index.js");
 const seed = require("../db/seeds/seed.js");
 const { expect } = require("@jest/globals");
+const { resourceUsage } = require("process");
+const users = require("../db/data/test-data/users.js");
 
 beforeEach(() => seed({ articleData, commentData, topicData, userData }));
 
@@ -479,6 +481,33 @@ describe("DELETE /api/comments/:comment_id", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Invalid ID");
+      });
+  });
+});
+
+describe("GET /api/users", () => {
+  it("200: respond with an array of users", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users).toBeInstanceOf(Array);
+      });
+  });
+
+  it("200: each user has 3 properties", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users.length).toBe(4);
+        users.forEach((user) => {
+          expect(user).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          });
+        });
       });
   });
 });

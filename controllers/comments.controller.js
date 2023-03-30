@@ -8,7 +8,7 @@ exports.postComment = async (req, resp, next) => {
     article_id,
   };
   insertComment(comment)
-    .then(async (data) => {
+    .then((data) => {
       resp.status(201).send({ postedComment: data });
     })
     .catch((err) => {

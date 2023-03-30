@@ -10,6 +10,7 @@ const {
   postComment,
   deleteComment,
 } = require("./controllers/comments.controller");
+const { getUsers } = require("./controllers/users.controller");
 const {
   handlePSQL400s,
   handleCustomErrors,
@@ -23,6 +24,7 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleFromID);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getArticleComments);
+app.get("/api/users", getUsers);
 
 app.post("/api/articles/:article_id/comments", postComment);
 
