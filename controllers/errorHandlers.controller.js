@@ -15,6 +15,7 @@ exports.handleCustomErrors = (err, req, resp, next) => {
 };
 
 exports.handle500Statuses = (err, req, resp, next) => {
+  console.log(err);
   resp
     .status(500)
     .send({ msg: "Server is currently experiencing a technical fault" });
