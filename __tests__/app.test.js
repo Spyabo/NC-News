@@ -305,7 +305,7 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 
-describe.only("PATCH /api/articles/:article_id", () => {
+describe("PATCH /api/articles/:article_id", () => {
   it("200: respond with the updated article", () => {
     return request(app)
       .patch("/api/articles/1")
