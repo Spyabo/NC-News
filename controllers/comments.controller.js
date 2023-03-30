@@ -9,16 +9,6 @@ exports.postComment = async (req, resp, next) => {
   };
   insertComment(comment)
     .then((data) => {
-      if (data.code === "22P02") {
-        resp.status(400).send({ msg: "Invalid ID" });
-      }
-      if (data.code === "23503") {
-        const table = data.detail.split(" ").at(-1);
-        if (table === '"users".') {
-          resp.status(404).send({ msg: "User not found" });
-        }
-        resp.status(404).send({ msg: "Article not found" });
-      }
       resp.status(201).send({ postedComment: data });
     })
     .catch((err) => {
