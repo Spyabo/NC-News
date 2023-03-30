@@ -23,7 +23,6 @@ exports.deleteComment = (req, resp, next) => {
       resp.status(204).send();
     })
     .catch((err) => {
-      console.log(err);
       next(err);
     });
 };
