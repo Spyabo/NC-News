@@ -8,6 +8,7 @@ const {
   userData,
 } = require("../db/data/test-data/index.js");
 const seed = require("../db/seeds/seed.js");
+const { expect } = require("@jest/globals");
 
 beforeEach(() => seed({ articleData, commentData, topicData, userData }));
 
@@ -300,6 +301,137 @@ describe("POST /api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("User not found");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  it("200: respond with the updated article", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({
+        inc_votes: 10,
+      })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          article_id: 1,
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          votes: 110,
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+
+  it("200: increment the votes by 10", () => {
+    let votes;
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        votes = body.votes;
+      })
+      .then(() => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({
+            inc_votes: 10,
+          })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article.votes).toBe(votes + 10);
+          });
+      });
+  });
+
+  it("200: decrement the votes by 10", () => {
+    let votes;
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        votes = body.votes;
+      })
+      .then(() => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({
+            inc_votes: -10,
+          })
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article.votes).toBe(votes - 10);
+          });
+      });
+  });
+
+  it("200: respond with an updated article when the article has no votes key yet", () => {
+    return request(app)
+      .patch("/api/articles/2")
+      .send({
+        inc_votes: 10,
+      })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          article_id: 2,
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          votes: 10,
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+
+  it("200: respond with an updated article when the article has no votes key yet and the votes value will be negative", () => {
+    return request(app)
+      .patch("/api/articles/2")
+      .send({
+        inc_votes: -10,
+      })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          article_id: 2,
+          title: expect.any(String),
+          topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+          created_at: expect.any(String),
+          votes: -10,
+          article_img_url: expect.any(String),
+        });
+      });
+  });
+
+  it("404: respond with an error for requesting an ID that does not exist", () => {
+    return request(app)
+      .patch("/api/articles/1000")
+      .send({
+        inc_votes: 10,
+      })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.error).toBe("Article not found");
+      });
+  });
+
+  it("404: respond with an error for requesting an ID that is not possible", () => {
+    return request(app)
+      .patch("/api/articles/banana")
+      .send({
+        inc_votes: 10,
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid ID");
       });
   });
 });

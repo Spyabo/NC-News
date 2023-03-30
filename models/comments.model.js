@@ -1,5 +1,5 @@
 const db = require("../db/connection.js");
-const { checkArticleExists } = require("../models/fetchArticles.model.js");
+const { checkArticleExists } = require("./articles.model.js");
 const { checkUserExists } = require("./users.model.js");
 
 exports.insertComment = async (comment) => {

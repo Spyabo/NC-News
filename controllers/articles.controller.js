@@ -2,8 +2,9 @@ const {
   fetchArticleFromID,
   fetchArticles,
   fetchArticleComments,
+  updateArticleVotes,
   checkArticleExists,
-} = require("../models/fetchArticles.model.js");
+} = require("../models/articles.model.js");
 
 exports.getArticleFromID = (req, resp, next) => {
   fetchArticleFromID(req.params.article_id)
@@ -40,6 +41,22 @@ exports.getArticleComments = (req, resp, next) => {
         resp.status(200).send({ comments });
       }
       resp.status(200).send({ comments });
+    })
+    .catch((err) => {
+      if (err.status) {
+        resp.status(404).send({ error: err.msg });
+      } else {
+        next(err);
+      }
+    });
+};
+
+exports.patchArticleVotes = (req, resp, next) => {
+  const { article_id } = req.params;
+  const update = { article_id, inc_votes: req.body.inc_votes };
+  updateArticleVotes(update)
+    .then((article) => {
+      resp.status(200).send({ article });
     })
     .catch((err) => {
       if (err.status) {
