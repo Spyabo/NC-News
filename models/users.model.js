@@ -10,4 +10,11 @@ async function checkUserExists(username) {
       return 0;
     });
 }
+
+exports.fetchUsers = () => {
+  return db.query(`SELECT * FROM users`).then((data) => {
+    return data.rows;
+  });
+};
+
 module.exports.checkUserExists = checkUserExists;
