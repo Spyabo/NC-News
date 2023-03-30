@@ -1,4 +1,3 @@
-const { ClientBase } = require("pg");
 const db = require("../db/connection.js");
 
 exports.fetchArticleFromID = (article_id) => {
