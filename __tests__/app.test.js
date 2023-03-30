@@ -10,6 +10,7 @@ const {
 const seed = require("../db/seeds/seed.js");
 const { expect } = require("@jest/globals");
 const { resourceUsage } = require("process");
+const users = require("../db/data/test-data/users.js");
 
 beforeEach(() => seed({ articleData, commentData, topicData, userData }));
 
@@ -500,10 +501,12 @@ describe("GET /api/users", () => {
       .expect(200)
       .then(({ body }) => {
         expect(body.users.length).toBe(4);
-        expect(body.users[0]).toMatchObject({
-          username: expect.any(String),
-          name: expect.any(String),
-          avatar_url: expect.any(String),
+        users.forEach((user) => {
+          expect(user).toMatchObject({
+            username: expect.any(String),
+            name: expect.any(String),
+            avatar_url: expect.any(String),
+          });
         });
       });
   });
