@@ -423,7 +423,7 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 
-  it("404: respond with an error for requesting an ID that is not possible", () => {
+  it("400: respond with an error for requesting an ID that is not possible", () => {
     return request(app)
       .patch("/api/articles/banana")
       .send({
