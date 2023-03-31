@@ -58,6 +58,103 @@ describe("GET: /api/articles", () => {
   });
 });
 
+describe("GET /api/articles (queries)", () => {
+  it("200: respond with the articles sorted by Date in ascending order", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(12);
+
+        const isSorted = articles.every((item, index, array) => {
+          if (index === 0) return true;
+          return (
+            new Date(item.created_at) >= new Date(array[index - 1].created_at)
+          );
+        });
+        expect(isSorted).toBe(true);
+      });
+  });
+
+  it("200: respond with the articles sorted by a query in descending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(12);
+
+        const getValueOfTitle = (str) => {
+          return str[0]
+            .split("")
+            .reduce((acc, cur) => acc + cur.toLowerCase().charCodeAt(0), 0);
+        };
+        let titleValue = getValueOfTitle(articles[0].title);
+        articles.forEach((article) => {
+          expect(getValueOfTitle(article.title)).toBeLessThanOrEqual(
+            titleValue
+          );
+          titleValue = getValueOfTitle(article.title);
+        });
+      });
+  });
+
+  it("200: accepts a topic query on its own", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(1);
+        articles.forEach((article) => {
+          expect(article.topic).toBe("cats");
+        });
+      });
+  });
+
+  it("200: valid topic query but has no articles associated so will respond with an empty array", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles.article).toEqual([]);
+        expect(articles.msg).toBe("No articles found for specified topic");
+      });
+  });
+
+  it("400: respond with a bad request for an invalid sort_by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid sort_by");
+      });
+  });
+
+  it("400: respond with a bad request for an invalid order", () => {
+    return request(app)
+      .get("/api/articles?order=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid order");
+      });
+  });
+
+  it("404: invalid topic", () => {
+    return request(app)
+      .get("/api/articles?topic=banana")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid topic");
+      });
+  });
+});
+
 describe("GET: /api/articles/:article_id", () => {
   it("200: respond with an article object corresponding to the id requested", () => {
     return request(app)
@@ -66,7 +163,7 @@ describe("GET: /api/articles/:article_id", () => {
       .then(({ body }) => {
         const article = body;
         expect(article).toBeInstanceOf(Object);
-        expect(Object.keys(article).length).toBe(8);
+        expect(Object.keys(article).length).toBe(9);
         expect(article).toMatchObject({
           article_id: 1,
           author: expect.any(String),
