@@ -58,7 +58,7 @@ describe("GET: /api/articles", () => {
   });
 });
 
-describe.only("GET /api/articles (queries)", () => {
+describe("GET /api/articles (queries)", () => {
   it("200: respond with the articles sorted by Date in ascending order", () => {
     return request(app)
       .get("/api/articles?order=asc")
