@@ -166,14 +166,30 @@ describe("GET: /api/articles/:article_id", () => {
         expect(Object.keys(article).length).toBe(9);
         expect(article).toMatchObject({
           article_id: 1,
-          author: expect.any(String),
           title: expect.any(String),
-          body: expect.any(String),
           topic: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
           created_at: expect.any(String),
           votes: expect.any(Number),
           article_img_url: expect.any(String),
+          comment_count: expect.any(Number),
         });
+      });
+  });
+
+  it("200: the comment_count will be the correct number", () => {
+    return db
+      .query(`SELECT * FROM comments WHERE comments.article_id = 1`)
+      .then(({ rows }) => {
+        const commentCount = rows.length;
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            const article = body;
+            expect(article.comment_count).toBe(commentCount);
+          });
       });
   });
 
