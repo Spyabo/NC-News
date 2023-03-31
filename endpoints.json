@@ -10,18 +10,104 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all topics",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "description": "returns an array of all articles objects",
+    "queries": ["topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
-          "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
-          "author": "weegembump",
-          "body": "Text from the article..",
-          "created_at": 1527695953341
+          "article_id": 1,
+          "title": "Running a Node App",
+          "topic": "coding",
+          "author": "jessjelly",
+          "body": "This is part two of a series on how to run a Node app...",
+          "created_at": "2020-11-07T06:03:00.000Z",
+          "votes": 0,
+          "article_img_url": "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?w=700&h=700",
+          "comment_count": 8
         }
       ]
     }
+  },
+  "GET /api/articles/:article_ID": {
+    "description": "returns an article given an ID",
+    "queries": [],
+    "exampleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Running a Node App",
+        "topic": "coding",
+        "author": "jessjelly",
+        "body": "This is part two of a series on how to run a Node app...",
+        "created_at": "2020-11-07T06:03:00.000Z",
+        "votes": 0,
+        "article_img_url": "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?w=700&h=700",
+        "comment_count": 8
+      }
+    }
+  },
+  "PATCH /api/articles/:article_ID": {
+    "description": "change the number of votes an articles has by a specified amount",
+    "exampleRequest": {
+      "inc_votes": 10
+    },
+    "expmaleResponse": {
+      "article": {
+        "article_id": 1,
+        "title": "Running a Node App",
+        "topic": "coding",
+        "author": "jessjelly",
+        "body": "This is part two of a series on how to run a Node app...",
+        "created_at": "2020-11-07T06:03:00.000Z",
+        "votes": 10,
+        "article_img_url": "https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?w=700&h=700",
+        "comment_count": 8
+      }
+    }
+  },
+  "GET /api/articles/:article_ID/comments": {
+    "description": "returns an array of comments on an article",
+    "queries": [],
+    "exampleResponse": [
+      {
+        "comment_id": 89,
+        "body": "Esse et expedita harum non.",
+        "article_id": 1,
+        "author": "cooljmessy",
+        "votes": 2,
+        "created_at": "2020-10-24T07:08:00.000Z"
+      },
+      "..."
+    ]
+  },
+  "POST /api/articles/:article_ID/comments": {
+    "description": "adds a new comment to an article",
+    "exampleRequest": {
+      "body": "first",
+      "username": "xX_Coder_Xx"
+    },
+    "exampleResponse": {
+      "comment_id": 1,
+      "body": "first",
+      "article_id": 1,
+      "author": "xX_Coder_Xx",
+      "votes": 0,
+      "created_at": "2020-07-09T20:11:00.000Z"
+    }
+  },
+  "GET /api/users": {
+    "description": "returns an array of users",
+    "queries": [],
+    "exampleResponse": [
+      {
+        "username": "tickle122",
+        "name": "Tom Tickle",
+        "avatar_url": "https://..."
+      },
+      "..."
+    ]
+  },
+  "DELETE /api/comments/:comment_ID": {
+    "description": "deletes a comment with the specified ID",
+    "exampleResponse": {}
   }
 }
