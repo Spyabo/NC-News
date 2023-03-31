@@ -16,10 +16,12 @@ const {
   handleCustomErrors,
   handle500Statuses,
 } = require("./controllers/errorHandlers.controller");
+const { fetchEndpoints } = require("./models/endpoints.model");
 
 const app = express();
 app.use(express.json());
 
+app.get("/api", fetchEndpoints);
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleFromID);
 app.get("/api/articles", getArticles);

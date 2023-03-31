@@ -14,6 +14,21 @@ beforeEach(() => seed({ articleData, commentData, topicData, userData }));
 
 afterAll(() => db.end());
 
+describe("GET: /api", () => {
+  it("200: respond with a JSON containing all available endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toBeInstanceOf(Object);
+      });
+  });
+
+  it("404: wrong path", () => {
+    return request(app).get("/banana").expect(404);
+  });
+});
+
 describe("GET: /api/topics", () => {
   it("200: respond with a json object containing an array of all the topic objects", () => {
     return request(app)
