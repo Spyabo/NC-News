@@ -1,8 +1,15 @@
 const db = require("../db/connection.js");
+const { fetchTopics } = require("../models/fetchTopics.model.js");
 
 exports.fetchArticleFromID = (article_id) => {
   return db
-    .query(`SELECT * FROM articles WHERE article_id = $1`, [article_id])
+    .query(
+      `SELECT articles.*, CAST(COUNT(comments.comment_id) AS INT) as comment_count FROM articles
+       LEFT JOIN comments ON articles.article_id = comments.article_id
+       WHERE articles.article_id = $1
+       GROUP BY articles.article_id`,
+      [article_id]
+    )
     .then((data) => {
       if (data.rowCount === 0) {
         return Promise.reject({
@@ -14,12 +21,15 @@ exports.fetchArticleFromID = (article_id) => {
     });
 };
 
-exports.fetchArticles = (topic, sort_by = "created_at", order = "desc") => {
+exports.fetchArticles = async (
+  topic,
+  sort_by = "created_at",
+  order = "desc"
+) => {
   let query = `SELECT articles.*, CAST(COUNT(comments.article_id) AS INT) AS comment_count
   FROM articles
-  LEFT JOIN comments ON articles.article_id = comments.article_id
-  GROUP BY articles.article_id`;
-  let topicArr = [];
+  LEFT JOIN comments ON articles.article_id = comments.article_id`;
+  const topicArr = [];
 
   const validColumns = [
     "article_id",
@@ -44,15 +54,31 @@ exports.fetchArticles = (topic, sort_by = "created_at", order = "desc") => {
       msg: "Invalid order",
     });
   }
-
   if (topic) {
+    const topics = await fetchTopics().then((topics) =>
+      topics.map((topic) => topic.slug)
+    );
+    if (!topics.includes(topic)) {
+      return Promise.reject({
+        status: 404,
+        msg: "Invalid topic",
+      });
+    }
     topicArr.push(topic);
     query += ` WHERE topic = $1`;
   }
 
-  query += ` ORDER BY ${sort_by} ${order}`;
+  query += ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order}`;
 
   return db.query(query, topicArr).then((data) => {
+    if (topicArr.length === 1 && data.rowCount === 0) {
+      return Promise.resolve({
+        status: 200,
+        msg: "No articles found for specified topic",
+        article: new Array(),
+      });
+    }
+
     if (data.rowCount === 0) {
       return Promise.reject({
         status: 404,
