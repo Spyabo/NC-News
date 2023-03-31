@@ -2,6 +2,7 @@ const db = require("../db/connection.js");
 const { fetchTopics } = require("../models/fetchTopics.model.js");
 
 exports.fetchArticleFromID = (article_id) => {
+  //add comment count to article
   return db
     .query(
       `SELECT articles.*, CAST(COUNT(comments.comment_id) AS INT) as comment_count FROM articles
