@@ -58,6 +58,69 @@ describe("GET: /api/articles", () => {
   });
 });
 
+describe("GET /api/articles (queries)", () => {
+  it("200: respond with the articles sorted by Date in ascending order", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(12);
+
+        const isSorted = articles.every((item, index, array) => {
+          if (index === 0) return true;
+          return (
+            new Date(item.created_at) >= new Date(array[index - 1].created_at)
+          );
+        });
+        expect(isSorted).toBe(true);
+      });
+  });
+
+  it("200: respond with the articles sorted by a query in descending order", () => {
+    return request(app)
+      .get("/api/articles?sort_by=title&order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles.length).toBe(12);
+
+        const getValueOfTitle = (str) => {
+          return str[0]
+            .split("")
+            .reduce((acc, cur) => acc + cur.toLowerCase().charCodeAt(0), 0);
+        };
+        let titleValue = getValueOfTitle(articles[0].title);
+        articles.forEach((article) => {
+          expect(getValueOfTitle(article.title)).toBeLessThanOrEqual(
+            titleValue
+          );
+          titleValue = getValueOfTitle(article.title);
+        });
+      });
+  });
+
+  it("400: respond with a bad request for an invalid sort_by", () => {
+    return request(app)
+      .get("/api/articles?sort_by=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid sort_by");
+      });
+  });
+
+  it("400: respond with a bad request for an invalid order", () => {
+    return request(app)
+      .get("/api/articles?order=banana")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Invalid order");
+      });
+  });
+});
+
 describe("GET: /api/articles/:article_id", () => {
   it("200: respond with an article object corresponding to the id requested", () => {
     return request(app)
