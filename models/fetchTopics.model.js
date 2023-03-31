@@ -1,9 +1,8 @@
 const db = require("../db/connection.js");
 
-function fetchTopics() {
-  return db.query(`SELECT * FROM topics`).then((data) => {
-    return data.rows;
-  });
+async function fetchTopics() {
+  const data = await db.query(`SELECT * FROM topics`);
+  return data.rows;
 }
 
-module.exports = fetchTopics;
+module.exports.fetchTopics = fetchTopics;
